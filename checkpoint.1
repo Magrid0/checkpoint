@@ -1,0 +1,113 @@
+.TH CHECKPOINT 1 "September 2026" "Universal Linux" "Snapshot Manager"
+.SH NAME
+checkpoint \- Universal snapshot manager using Timeshift and Snapper
+.SH SYNOPSIS
+.B checkpoint
+[\fIOPTIONS\fR] [\fISUBCOMMAND\fR]
+.SH DESCRIPTION
+.B checkpoint
+is a system state capture tool that provides advanced retention logic for Timeshift and Snapper snapshots. It allows for "undeletable" snapshots and ensures that system state archives are managed efficiently across different Linux distributions.
+.SH OPTIONS
+.TP
+.B create
+Explicitly create a new system snapshot (default action when invoked without arguments).
+.TP
+.BR \-nc ", " \-\-no\-cleanup
+Create snapshot without running cleanup.
+.TP
+.BR \-cl ", " \-\-cleanup\-only
+Run snapshot cleanup logic only (keeping last \fIN\fR normal snapshots).
+.TP
+.BR \-l ", " \-\-list
+List existing snapshots in a clean, formatted table.
+.TP
+.BR \-d ", " \-\-delete " [\fIPATTERN\fR]"
+Interactive deletion menu via \fBfzf\fR, or targeted deletion matching pattern.
+.TP
+.BR \-m ", " \-\-comment " \fIMSG\fR"
+Add a custom comment to the snapshot.
+.TP
+.BR \-ks ", " \-\-keep\-snapshot
+Make the new snapshot undeletable by appending \fB[KEEP]\fR to the comment.
+.TP
+.BR \-f ", " \-\-force\-delete
+Override protection and delete \fB[KEEP]\fR snapshots during cleanup or deletion.
+.TP
+.BR \-k ", " \-\-keep " \fIN\fR"
+Limit cleanup to keep the last \fIN\fR normal snapshots. Protected snapshots are not counted towards this limit.
+.TP
+.BR \-\-backend " \fINAME\fR"
+Override snapshot backend driver for this run (e.g. \fBsnapper\fR, \fBtimeshift\-btrfs\fR, \fBtimeshift\-rsync\fR).
+.TP
+.BR \-\-porcelain
+Output strict machine-readable \fBKEY="VALUE"\fR metadata to stdout for IPC with Advance or automated scripts.
+.TP
+.BR \-\-type " \fItype\fR"
+Snapshot type for paired snapshots: \fBsingle\fR, \fBpre\fR, or \fBpost\fR.
+.TP
+.BR \-\-pre\-id " \fIID\fR"
+Specify pre-snapshot ID when creating a \fBpost\fR snapshot with paired backends (e.g. Snapper).
+.TP
+.BR \-r ", " \-\-rsync
+Force RSYNC snapshot mode.
+.TP
+.BR \-b ", " \-\-btrfs
+Force BTRFS snapshot mode.
+.TP
+.BR \-sd ", " \-\-snapshot\-device " \fIDEV\fR"
+Override backup target storage device or partition.
+.TP
+.BR \-v ", " \-\-verbose ", " \-\-debug
+Enable detailed execution logs for troubleshooting.
+.TP
+.BR \-V ", " \-\-version
+Print version information and exit.
+.TP
+.BR \-h ", " \-\-help
+Display command usage and options summary.
+.SH SUBCOMMANDS
+.TP
+.B config
+Launch interactive configuration wizard via \fBfzf\fR to configure snapshot limits, retention rules, and default backend settings.
+.TP
+.B self\-update
+Pull latest changes from the local source git repository and reinstall.
+.SH RETENTION LOGIC
+.B checkpoint
+uses a specialized counting algorithm for cleanup:
+.IP 1. 4
+It iterates through snapshots from newest to oldest.
+.IP 2. 4
+If a snapshot comment contains \fB[KEEP]\fR, it is skipped and remains on the disk indefinitely.
+.IP 3. 4
+The counter only increments for "normal" snapshots.
+.IP 4. 4
+Once the counter exceeds the limit (Default: 6), older normal snapshots are deleted.
+.SH CONFIGURATION FILES
+.TP
+.B ~/.config/checkpoint/config
+Main configuration file in \fBKEY=VALUE\fR format. Managed via \fBcheckpoint config\fR. Key settings include:
+.RS
+.IP \(bu 2
+\fBSNAPSHOT_BACKEND\fR: Active snapshot backend recipe (\fBauto\fR, \fBsnapper\fR, \fBtimeshift\-btrfs\fR, \fBtimeshift\-rsync\fR).
+.IP \(bu 2
+\fBDEFAULT_KEEP_LIMIT\fR: Number of unprotected normal snapshots to retain during cleanup (Default: \fB6\fR).
+.IP \(bu 2
+\fBALWAYS_KEEP\fR: Automatically mark every new snapshot as protected [KEEP] (\fBtrue\fR or \fBfalse\fR).
+.IP \(bu 2
+\fBALWAYS_CREATE\fR: Automatically create snapshot when invoked without flags (\fBtrue\fR or \fBfalse\fR).
+.IP \(bu 2
+\fBALWAYS_CLEANUP\fR: Automatically prune old snapshots exceeding limit when invoked without flags (\fBtrue\fR or \fBfalse\fR).
+.IP \(bu 2
+\fBAUTO_RETRIES\fR: Number of automatic retries before prompting the user (Default: \fB1\fR).
+.IP \(bu 2
+\fBINFINITE_RETRIES\fR: Retry failed operations endlessly without prompting (\fBtrue\fR or \fBfalse\fR).
+.IP \(bu 2
+\fBSNAPSHOT_DEVICE\fR: Override default backup device partition or UUID.
+.IP \(bu 2
+\fBUSE_COLOR\fR / \fBUSE_EMOJI\fR: UI display preferences (\fBtrue\fR or \fBfalse\fR).
+.RE
+.SH SEE ALSO
+.BR advance (1),
+.BR snapper (8),
+.BR timeshift (1)

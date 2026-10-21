@@ -1,0 +1,5 @@
+# Gemini IDE agent local instructions
+.gemini/
+
+# Temporary agent teamwork artifacts
+.agents/teamwork/

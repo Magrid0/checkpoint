@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# checkpoint: Universal System Snapshot Manager
+# ==============================================================================
+
+VERSION="0.9.34"
+BUILD="80"
+
+# Auto-detect source directory (handles symlinks seamlessly)
+detect_source_dir() {
+    local script_path
+    script_path="$(readlink -f "$0" 2>/dev/null || echo "$0")"
+    local script_dir
+    script_dir="$(dirname "$script_path")"
+    if git -C "$script_dir" rev-parse --show-toplevel >/dev/null 2>&1; then
+        SOURCE_DIR="$(git -C "$script_dir" rev-parse --show-toplevel)"
+    else
+        SOURCE_DIR="$script_dir"
+    fi
+}
+detect_source_dir
+
+# Ensure standard user tool directories are in PATH
+for _p in "$HOME/.local/bin"; do
+    [[ -d "$_p" && ":$PATH:" != *":$_p:"* ]] && PATH="$_p:$PATH"
+done
+unset _p
+
+# Resolve library directory (local repo, ~/.local/lib/checkpoint, or /usr/lib/checkpoint)
+if [[ -d "$SOURCE_DIR/lib" ]]; then
+    LIB_DIR="$SOURCE_DIR/lib"
+elif [[ -d "$HOME/.local/lib/checkpoint" ]]; then
+    LIB_DIR="$HOME/.local/lib/checkpoint"
+elif [[ -d "/usr/lib/checkpoint" ]]; then
+    LIB_DIR="/usr/lib/checkpoint"
+else
+    echo "ERROR: Could not locate Checkpoint library directory (lib/)." >&2
+    exit 1
+fi
+
+# Load core modules
+source "$LIB_DIR/core.sh"
+source "$LIB_DIR/config.sh"
+source "$LIB_DIR/backend.sh"
+source "$LIB_DIR/retry.sh"
+source "$LIB_DIR/snapshot.sh"
+
+# Execute snapshot workflow / CLI dispatcher
+run_checkpoint "$@"
