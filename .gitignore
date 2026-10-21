@@ -1,5 +1,9 @@
-# Gemini IDE agent local instructions
-.gemini/
-
-# Temporary agent teamwork artifacts
+# OS & transient swap files only (everything else is tracked on *-dev)
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+*.tmp
+*.temp
 .agents/teamwork/

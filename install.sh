@@ -61,4 +61,10 @@ echo "   - Catalog: $HOME/.local/share/checkpoint/catalog"
 echo "   - Backends: $HOME/.config/checkpoint/backends.d/"
 echo "   - Manual: $MAN_DIR/checkpoint.1"
 echo ""
+if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
+    echo "${YELLOW}[WARN] $BIN_DIR is not in your PATH. Add this to your shell profile:${RESET}"
+    echo "       export PATH=\"\$HOME/.local/bin:\$PATH\""
+    echo ""
+fi
+
 echo "[INFO] Usage: Type 'checkpoint --help' or 'man checkpoint' to get started."
