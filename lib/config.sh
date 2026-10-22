@@ -3,8 +3,6 @@
 # Checkpoint Module: Configuration Management
 # ==============================================================================
 
-CONFIG_FILE="$HOME/.config/checkpoint/config"
-
 # --- INTERNAL DEFAULTS ---
 USE_COLOR=true; USE_EMOJI=true; DEFAULT_KEEP_LIMIT=6
 ALWAYS_KEEP=false; ALWAYS_CLEANUP=true; ALWAYS_CREATE=true

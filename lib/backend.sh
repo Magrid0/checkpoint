@@ -3,16 +3,12 @@
 # Checkpoint Module: Modular Snapshot Backends & Driver Engine
 # ==============================================================================
 
-BACKENDS_USER_DIR="$HOME/.config/checkpoint/backends.d"
-
 # Resolves official catalog directory for backends
 get_backends_catalog_dir() {
-    if [[ -n "$CATALOG_DIR" && -d "$CATALOG_DIR" ]]; then
-        echo "$CATALOG_DIR"
-    elif [[ -n "$SOURCE_DIR" && -d "$SOURCE_DIR/catalog/backends" ]]; then
+    if [[ -n "${SOURCE_DIR:-}" && -d "$SOURCE_DIR/catalog/backends" ]]; then
         echo "$SOURCE_DIR/catalog/backends"
-    elif [[ -d "$HOME/.local/share/checkpoint/catalog/backends" ]]; then
-        echo "$HOME/.local/share/checkpoint/catalog/backends"
+    elif [[ -n "${CATALOG_DIR:-}" && -d "$CATALOG_DIR/backends" ]]; then
+        echo "$CATALOG_DIR/backends"
     elif [[ -d "/usr/share/checkpoint/catalog/backends" ]]; then
         echo "/usr/share/checkpoint/catalog/backends"
     elif [[ -d "$HOME/.local/lib/checkpoint/catalog/backends" ]]; then
