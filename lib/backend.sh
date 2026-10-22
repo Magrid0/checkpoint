@@ -43,6 +43,7 @@ probe_backend_conf() {
     while IFS='=' read -r key val || [[ -n "$key" ]]; do
         key="${key#"${key%%[![:space:]]*}"}"; key="${key%"${key##*[![:space:]]}"}"
         val="${val#"${val%%[![:space:]]*}"}"; val="${val%"${val##*[![:space:]]}"}"
+        key="${key%$'\r'}"; val="${val%$'\r'}"
         # Strip outer quotes if present
         if [[ "$val" == \"*\" && "$val" =~ ^\".*\"$ ]]; then
             val="${val#\"}"; val="${val%\"}"
@@ -88,7 +89,7 @@ resolve_active_backend() {
             [[ ! -f "$bconf" ]] && continue
             if probe_backend_conf "$bconf"; then
                 local pri
-                pri=$(grep '^PRIORITY=' "$bconf" 2>/dev/null | head -n 1 | cut -d'=' -f2)
+                pri=$(grep '^PRIORITY=' "$bconf" 2>/dev/null | head -n 1 | cut -d'=' -f2 | tr -d '\r')
                 pri="${pri:-0}"
                 if [[ $pri -gt $best_pri ]]; then
                     best_pri=$pri
@@ -106,7 +107,7 @@ resolve_active_backend() {
             [[ ! -f "$bconf" ]] && continue
             if probe_backend_conf "$bconf"; then
                 local pri
-                pri=$(grep '^PRIORITY=' "$bconf" 2>/dev/null | head -n 1 | cut -d'=' -f2)
+                pri=$(grep '^PRIORITY=' "$bconf" 2>/dev/null | head -n 1 | cut -d'=' -f2 | tr -d '\r')
                 pri="${pri:-0}"
                 if [[ $pri -gt $best_pri ]]; then
                     best_pri=$pri
@@ -123,7 +124,7 @@ resolve_active_backend() {
         for bconf in "$cat_dir"/*.conf; do
             [[ ! -f "$bconf" ]] && continue
             local pri
-            pri=$(grep '^PRIORITY=' "$bconf" 2>/dev/null | head -n 1 | cut -d'=' -f2)
+            pri=$(grep '^PRIORITY=' "$bconf" 2>/dev/null | head -n 1 | cut -d'=' -f2 | tr -d '\r')
             pri="${pri:-0}"
             if [[ $pri -gt $best_pri ]]; then
                 best_pri=$pri
@@ -162,6 +163,7 @@ load_backend() {
         [[ -z "$key" || "$key" == \#* ]] && continue
         key="${key#"${key%%[![:space:]]*}"}"; key="${key%"${key##*[![:space:]]}"}"
         val="${val#"${val%%[![:space:]]*}"}"; val="${val%"${val##*[![:space:]]}"}"
+        key="${key%$'\r'}"; val="${val%$'\r'}"
         # Strip outer quotes if present
         if [[ "$val" == \"*\" && "$val" =~ ^\".*\"$ ]]; then
             val="${val#\"}"; val="${val%\"}"
@@ -196,10 +198,10 @@ find_backend_by_format() {
     for bconf in "$BACKENDS_USER_DIR"/*.conf "$cat_dir"/*.conf; do
         [[ -f "$bconf" ]] || continue
         local s_fmt
-        s_fmt=$(grep '^STORAGE_FORMAT=' "$bconf" 2>/dev/null | head -n 1 | cut -d'=' -f2)
+        s_fmt=$(grep '^STORAGE_FORMAT=' "$bconf" 2>/dev/null | head -n 1 | cut -d'=' -f2 | tr -d '\r')
         if [[ "$s_fmt" == "$fmt" ]]; then
             local pri
-            pri=$(grep '^PRIORITY=' "$bconf" 2>/dev/null | head -n 1 | cut -d'=' -f2)
+            pri=$(grep '^PRIORITY=' "$bconf" 2>/dev/null | head -n 1 | cut -d'=' -f2 | tr -d '\r')
             pri="${pri:-0}"
             if [[ $pri -gt $best_pri ]]; then
                 best_pri=$pri

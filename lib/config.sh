@@ -17,6 +17,7 @@ load_config() {
         [[ -z "$key" || "$key" == \#* ]] && continue
         key="${key#"${key%%[![:space:]]*}"}"; key="${key%"${key##*[![:space:]]}"}"
         value="${value#"${value%%[![:space:]]*}"}"; value="${value%"${value##*[![:space:]]}"}"
+        key="${key%$'\r'}"; value="${value%$'\r'}"
         case "$key" in
             USE_COLOR) USE_COLOR="$value" ;;
             USE_EMOJI) USE_EMOJI="$value" ;;
@@ -34,7 +35,8 @@ load_config() {
 
 save_config() {
     mkdir -p "$(dirname "$CONFIG_FILE")"
-    cat <<EOF > "$CONFIG_FILE"
+    local tmp_file="${CONFIG_FILE}.tmp.$$"
+    cat <<EOF > "$tmp_file"
 USE_COLOR=$USE_COLOR
 USE_EMOJI=$USE_EMOJI
 DEFAULT_KEEP_LIMIT=$DEFAULT_KEEP_LIMIT
@@ -46,4 +48,5 @@ INFINITE_RETRIES=$INFINITE_RETRIES
 SNAPSHOT_DEVICE=$SNAPSHOT_DEVICE
 SNAPSHOT_BACKEND=$SNAPSHOT_BACKEND
 EOF
+    mv "$tmp_file" "$CONFIG_FILE"
 }
